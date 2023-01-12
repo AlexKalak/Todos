@@ -1,0 +1,32 @@
+@import "../../../scss/variables/variables.scss";
+@import "../../../scss/global/mixins.scss";
+
+.container {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.textareaBlock {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.textarea {
+    display: block;
+    border-radius: 5px;
+    box-sizing: border-box;
+    width: 98%;
+    resize: none;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: #ddd;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0 auto 10px;
+    @include text-responsive()
+}

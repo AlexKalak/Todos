@@ -1,0 +1,14 @@
+@import "../../../scss/variables/variables.scss";
+@import "../../../scss/global/mixins.scss";
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button {
+    display: flex;
+    margin: 0 auto;
+    padding: 5px 20px;
+}

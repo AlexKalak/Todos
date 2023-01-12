@@ -1,0 +1,49 @@
+@import "../../scss/variables/variables.scss" ;
+
+$duration: 1.5s;
+
+.container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    aspect-ratio: 100/30;
+}
+
+.circle {
+    position: relative;
+    border-radius: 50%;
+    height: 85%;
+    aspect-ratio: 1/1;
+    transition: .5s ease;
+}
+
+.circleFirst {
+    transform: scale(1);
+    animation: anim $duration ease 0s infinite;
+}
+
+.circleSecond {
+    transform: scale(0.85);
+    animation: anim $duration ease 0.2s infinite;
+}
+
+.circleThird {
+    transform: scale(0.75);
+    animation: anim $duration ease 0.4s infinite;
+}
+
+@keyframes anim {
+    0% {
+        background: rgba(255, 255, 255, 0.6);
+        transform: scale(0.75);
+    }
+    50% {
+        background: #fff;
+        transform: scale(1);
+    }
+    100% {
+        background: rgba(255, 255, 255, 0.6);
+        transform: scale(0.75);
+    }
+} 

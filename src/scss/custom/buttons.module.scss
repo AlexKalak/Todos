@@ -1,0 +1,16 @@
+@import '../variables/variables.scss';
+
+.button {
+    border: none;
+    border-radius: 5px;
+    color: white;
+    background: none;
+    &--danger {
+        @extend .button;
+        background-color: $color-red;
+    }
+    &--primary {
+        @extend .button;
+        background-color: $color-blue;
+    }
+}

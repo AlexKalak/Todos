@@ -1,0 +1,37 @@
+@import "../variables/variables.scss";
+
+.popup {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(255, 255, 255, 0.466);
+    z-index: 100;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+
+    .content {
+        background-color: $color-bg;
+        border-radius: 15px;
+        max-height: 90vh;
+        width: 90vw;
+        max-width: 600px;
+        min-height: 50px;
+        transform: scale(0);
+        transition: transform .3s;
+    }
+}
+
+.popup.active {
+    pointer-events: all;
+    opacity: 1;
+
+    .content {
+        transform: scale(1);
+    }
+}
