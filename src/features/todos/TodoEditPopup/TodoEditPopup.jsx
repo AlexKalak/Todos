@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import popupStyle from '../../../scss/custom/popup.module.scss'
-import style from './todo-popup.module.scss'
+import style from './todo-edit-popup.module.scss'
 import { closeEditPopup, selectEditPopupData } from '../todosSlice'
 
 const TodoEditPopup = () => {
@@ -19,7 +19,6 @@ const TodoEditPopup = () => {
     let textareaId = e.target.id
 
     e.target.style.height = "auto"
-    
     let height = e.target.scrollHeight
     console.log(height)
     e.target.style.height = height + "px"

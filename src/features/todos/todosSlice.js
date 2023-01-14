@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { deleteTodo, getTodos } from "../../api/fetchTodos"
+import { createTodo, deleteTodo, getTodos } from "../../api/fetchTodos"
 
 const initialState = {
     todos: [],
@@ -8,10 +8,13 @@ const initialState = {
     deletedTodos: [],
     rejectedDeleteTodos: [],
     statuses: {
-        uploading: null
+        uploading: null,
+        creating: null 
     }, 
     errors: {
-        uploading: null
+        uploading: null,
+        creatingError: null,
+        creatingValidationErrors: {}
     },
     editPopup: {
         opened: false,
@@ -19,6 +22,9 @@ const initialState = {
     },
     deletePopup: {
         opened: false,
+    },
+    createPopup: {
+        opened: true
     }
 }
 
@@ -29,12 +35,12 @@ export const fetchTodos = createAsyncThunk(
             const response = await getTodos()
 
             if(!response.ok) {
-                return rejectWithValue(response.msg)
+                return rejectWithValue(response.msg ?? "")
             }
 
             return response.data
         } catch (e) {
-            return rejectWithValue(e)
+            return rejectWithValue("")
         }
     }
 )
@@ -45,11 +51,27 @@ export const deleteTodoByID = createAsyncThunk(
             const response = await deleteTodo(id)
 
             if(!response.ok) {
-                return rejectWithValue({id, err: response.msg})
+                return rejectWithValue({id, err: "some error occured"})
             }
             return {id}
         } catch (e) {
-            return rejectWithValue({id, err: e})
+            return rejectWithValue({id, err: "some error occured"})
+        }
+    }
+)
+export const createTodoThunk = createAsyncThunk(
+    'todos/createTodo', 
+    async ({data}, {rejectWithValue}) => {
+        let json = JSON.stringify(data)
+        try{
+            const response = await createTodo(json)
+            if(!response.ok) {
+                return rejectWithValue({validationErrors: response.validationErrors, err: response.err})
+            }
+            console.log("in thunk", response)
+            return {"ok": true, todo: response.todo}
+        } catch (e) {
+            return rejectWithValue({err: "some error occured"})
         }
     }
 )
@@ -83,6 +105,15 @@ const todosSlice = createSlice({
             state.processDeletingTodoIds = state.processDeletingTodoIds.filter(todoid => todoid !== id)
             state.deletedTodos = state.deletedTodos.filter(todoid => todoid !== id)
             state.todos = state.todos.filter(todoid => todoid !== id)
+        },
+        openCreatePopup(state, action) {
+            state.createPopup.opened = true
+        },
+        closeCreatePopup(state, action) {
+            state.createPopup.opened = false
+        },
+        clearCreatePopup(state, action) {
+            state.statuses.creating = null;
         }
     },
     extraReducers(builder) {
@@ -92,7 +123,7 @@ const todosSlice = createSlice({
             })
             .addCase(fetchTodos.fulfilled, (state, action) => {
                 state.statuses.uploading = 'fulfilled'
-                state.todos = action.payload
+                state.todos = action.payload.reverse()
             })
             .addCase(fetchTodos.rejected, (state, action) => {
                 state.statuses.uploading = 'failed'
@@ -108,17 +139,55 @@ const todosSlice = createSlice({
                 state.processDeletingTodoIds = state.processDeletingTodoIds.filter(todoid => todoid !== id)
                 state.rejectedDeleteTodos.push(id)
             })
+            .addCase(createTodoThunk.pending, (state, action) => {
+                state.statuses.creating = 'loading'
+            })
+            .addCase(createTodoThunk.fulfilled, (state, action) => {
+                state.statuses.creating = 'fulfilled'
+                const {todo} = action.payload
+                state.todos = [todo, ...state.todos]
+            })
+            .addCase(createTodoThunk.rejected, (state, action) => {
+                const {validationErrors, err} = action.payload 
+                if(validationErrors) {
+                    for(let i in validationErrors) {
+                        let fieldName = validationErrors[i].FailedField
+                        state.errors.creatingValidationErrors[fieldName] = {
+                            tag: validationErrors[i].Tag,
+                            value: validationErrors[i].Value
+                        }
+                    }
+    
+                    state.statuses.creating = 'validation errors'
+                    return
+                }
+                if(err) {
+                    state.errors.creatingError = action.payload.err
+                    state.statuses.creating = 'failed'
+                    return
+                }
+                state.statuses.creating = 'failed'
+                state.errors.creatingError = "some err occured"
+            })
     }
 })
 
 export default todosSlice.reducer
 
-export const {openEditPopup, closeEditPopup, openDeletePopup, closeDeletePopup, deleteTodoFromList} = todosSlice.actions
+export const {  openEditPopup, 
+                closeEditPopup, 
+                openDeletePopup, 
+                closeDeletePopup, 
+                deleteTodoFromList,
+                openCreatePopup,
+                closeCreatePopup,
+                clearCreatePopup } = todosSlice.actions
 
 export const selectAllTodos = state => state.todos.todos
 
 
 export const selectProcessDeletingIds = state => state.todos.processDeletingTodoIds
-export const selectDeltedTodos = state => state.todos.deletedTodos
+export const selectDeletedTodos = state => state.todos.deletedTodos
 export const selectEditPopupData = state => state.todos.editPopup
 export const selectDeletePopupData = state => state.todos.deletePopup
+export const selectCreatePopupIsOpened = state => state.todos.createPopup.opened

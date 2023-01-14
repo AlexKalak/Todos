@@ -1,7 +1,9 @@
 import axios from "axios"
 
+const backendDomain = "http://192.168.100.108:9999" 
+
 export const getTodos = async () => {
-    const endpoint = "http://localhost:9999/todos"
+    const endpoint = `${backendDomain}/todos`
 
     let response = await axios.get(endpoint)
     console.log(response)
@@ -19,7 +21,7 @@ export const getTodos = async () => {
 }
 
 export const deleteTodo = async (id) => {
-    const endpoint = `http://localhost:9999/todos/${id}`
+    const endpoint = `${backendDomain}/todos/${id}`
 
     let response = await axios.delete(endpoint)
     console.log(response)
@@ -33,5 +35,27 @@ export const deleteTodo = async (id) => {
     return {
         ok: true,
         data: response.data
+    }
+}
+
+export const createTodo = async (todoJSON) => {
+    const endpoint = `${backendDomain}/todos`
+
+    let response = await axios.post(endpoint, todoJSON, {
+        headers: {
+            'Content-Type': 'application/json'}
+    })
+    console.log("in axios", response)
+    if(response.data.ok === false) {
+        return {
+            ok: false,
+            validationErrors: response.data.errors,
+            err: response.data.err
+        }
+    }
+
+    return {
+        ok: true,
+        todo: response.data.todo
     }
 }

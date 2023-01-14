@@ -1,4 +1,4 @@
-@import "../variables/variables.scss";
+@import "../vendor/variables.scss";
 
 .popup {
     position: fixed;
@@ -16,6 +16,7 @@
     transition: opacity .3s;
 
     .content {
+        position: relative;
         background-color: $color-bg;
         border-radius: 15px;
         max-height: 90vh;
@@ -24,6 +25,7 @@
         min-height: 50px;
         transform: scale(0);
         transition: transform .3s;
+        box-shadow: 14px 19px 42px -10px rgb(0 0 0 / 75%);
     }
 }
 

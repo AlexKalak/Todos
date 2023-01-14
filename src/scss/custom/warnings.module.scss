@@ -1,0 +1,11 @@
+@import '../vendor/variables.scss';
+@import '../vendor/fonts.scss';
+
+.error {
+    color: $color-red-light;
+    @include fontFamilyDidactGothic;
+
+    &::before {
+        content: "*"
+    }
+}

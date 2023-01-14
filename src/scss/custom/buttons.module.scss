@@ -1,10 +1,12 @@
-@import '../variables/variables.scss';
+@import '../vendor/variables.scss';
 
 .button {
     border: none;
     border-radius: 5px;
     color: white;
     background: none;
+    cursor: pointer;
+    
     &--danger {
         @extend .button;
         background-color: $color-red;

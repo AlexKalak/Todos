@@ -25,7 +25,7 @@ const TodoBlock = (props) => {
             dispatch(openEditPopup({id: todo.id}))
         }
     }
-    const closeBlock = async (height) =>{ 
+    const closeBlock = async (height, time) =>{ 
         let promise = new Promise((res, rej) => {
             if(height <= 0){
                 todoContainerRef.current.style.display = "none";
@@ -34,9 +34,9 @@ const TodoBlock = (props) => {
             setTimeout(async () => {
                 height -= 1
                 todoContainerRef.current.style.height = height + "px"
-                await closeBlock(height)
+                await closeBlock(height, time)
                 res()
-            }, 50)
+            }, time)
         })
 
         await promise
@@ -52,7 +52,7 @@ const TodoBlock = (props) => {
                 let h = todoContainerRef.current.clientHeight
                 todoContainerRef.current.style.minHeight = "0px";
                 todoContainerRef.current.style.height = h + "px";
-                await closeBlock(h)
+                await closeBlock(h, 1500 / h)
                 dispatch(deleteTodoFromList({id: todo.id}))
             })()
         }
@@ -62,14 +62,18 @@ const TodoBlock = (props) => {
     return (
         <article className={style.todoContainer} ref={todoContainerRef}>
             
-            {isDeleted && <div style ={{fontSize: "25px"}}>😥</div>}
+            {isDeleted && 
+            <div 
+                className={style.todoProcessing} 
+                style ={{fontSize: "25px"}}>😢
+            </div>}
 
-            {isInDeletingProcess && <>
+            {isInDeletingProcess && 
+            <div className={style.todoProcessing}>
                 <Loading width="50px"/>
-            </>}
+            </div>}
             
-            {/* not in deleting process */}
-            {!isInDeletingProcess && !isDeleted && <>
+            {<>
                 <div    
                     style={showedAction === "right" ? {zIndex: "2"} : {zIndex: "1"}}
                     className={style.todoAction + " " + style.todoRightAction}
@@ -85,7 +89,11 @@ const TodoBlock = (props) => {
 
                 <div
                     className={style.todoBlock + " todoBlock"}
-                    onPointerDown={actionsWithSlides ? pointerDownHandler(setShowedAction, rightSideSlideEvent, leftSideSlideEvent) : null}
+                    onPointerDown={
+                        actionsWithSlides && !isInDeletingProcess && !isDeleted ? 
+                        pointerDownHandler(setShowedAction, rightSideSlideEvent, leftSideSlideEvent)
+                        : null
+                    }
                 >
                     <div style={{pointerEvents: "none"}}>
                         <header className={style.todoHeader}>

@@ -1,5 +1,5 @@
 @import "../../scss/global/mixins.scss";
-@import "../../scss/variables/variables.scss";
+@import "../../scss/vendor/variables.scss";
 
 .loading {
     margin: 0 auto;
@@ -68,6 +68,17 @@
     z-index: 2;
 }
 
+.todoProcessing {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $color-bg;
+    z-index: 10;
+}
+
 .todoBlock {
     position: relative;
     width: 100%;
@@ -80,11 +91,13 @@
     cursor: grab;
     transition: all .7s ease;
     max-height: fit-content;
+    word-break: break-all;
+    
 }
 
-.todoBlock * {
-    touch-action: none;
-}
+// .todoBlock * {
+//     touch-action: none;
+// }
 
 .todoHeader {
     width: 100%;
