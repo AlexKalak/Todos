@@ -20,6 +20,7 @@ type TodoService interface {
 	SaveTodo(c *fiber.Ctx) (*entity.SerializedTodo, []*types.ErrorResponse, error)
 	GetTodoById(c *fiber.Ctx) (*entity.SerializedTodo, error)
 	DeleteTodoById(c *fiber.Ctx) (bool, error)
+	UpdateTodo(c *fiber.Ctx) (*entity.SerializedTodo, []*types.ErrorResponse, error)
 }
 
 type todoService struct {
@@ -50,7 +51,6 @@ func (t *todoService) GetAllTodos() *[]entity.SerializedTodo {
 		var todo entity.SerializedTodo
 
 		res.Scan(&todo.Id, &todo.Title, &todo.Task, &tm, &todo.AuthorName)
-		fmt.Println(string(tm))
 		parsedTM, _ := time.Parse("2006-01-02 15:04:05", string(tm))
 		todo.CreatedTime = parsedTM.Format(entity.SerializedTodoTimeFormat)
 
@@ -75,43 +75,32 @@ func (t *todoService) SaveTodo(c *fiber.Ctx) (*entity.SerializedTodo, []*types.E
 
 	todo.CreatedTime = time.Now()
 
-	query := fmt.Sprintf(`INSERT INTO todos (title, task, created_time, author_name) OUTPUT Inserted.Col1, Inserted.IDCol, Inserted.Col17 VALUES ("%s", "%s", "%s", "%s")`,
-		todo.Title, todo.Task, todo.CreatedTime.Format("2006-01-02 15:04:05"), todo.AuthorName)
+	insertQuery, err := conn.Prepare(`INSERT INTO todos (title, task, created_time, author_name) VALUES (?, ?, ?, ?);`)
+	if err != nil {
+		fmt.Println("err")
+		fmt.Println(err)
+		return nil, nil, globalerrors.ErrInternalServerError
+	}
 
-	res, err := conn.Query(query)
-	defer res.Close()
+	res, err := insertQuery.Exec(todo.Title, todo.Task, todo.CreatedTime.Format("2006-01-02 15:04:05"), todo.AuthorName)
 	if err != nil {
 		fmt.Println("err")
 		fmt.Println(err)
 		return nil, nil, err
 	}
+	lastInsId, err := res.LastInsertId()
+	if err != nil {
+		return nil, nil, globalerrors.ErrInternalServerError
+	}
 
 	serializedTodo := entity.SerializedTodo{
-		Id:          todo.Id,
+		Id:          int(lastInsId),
 		Title:       todo.Title,
 		Task:        todo.Task,
 		AuthorName:  todo.AuthorName,
 		CreatedTime: todo.CreatedTime.Format(entity.SerializedTodoTimeFormat),
 	}
 	return &serializedTodo, nil, nil
-}
-
-var validate = validator.New()
-
-func ValidateTodo(todo entity.Todo) []*types.ErrorResponse {
-	var errors []*types.ErrorResponse
-
-	err := validate.Struct(todo)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element types.ErrorResponse
-			element.FailedField = err.StructNamespace()
-			element.Tag = err.Tag()
-			element.Value = err.Param()
-			errors = append(errors, &element)
-		}
-	}
-	return errors
 }
 
 func (t *todoService) GetTodoById(c *fiber.Ctx) (*entity.SerializedTodo, error) {
@@ -127,10 +116,10 @@ func (t *todoService) GetTodoById(c *fiber.Ctx) (*entity.SerializedTodo, error) 
 
 	query := fmt.Sprintf(`SELECT * FROM todos WHERE id = %d`, id)
 	res, err := conn.Query(query)
-	defer res.Close()
 	if err != nil {
 		return nil, globalerrors.ErrInternalServerError
 	}
+	defer res.Close()
 
 	if res.Next() {
 		var tm []byte
@@ -186,4 +175,79 @@ func (t *todoService) DeleteTodoById(c *fiber.Ctx) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (t *todoService) UpdateTodo(c *fiber.Ctx) (*entity.SerializedTodo, []*types.ErrorResponse, error) {
+	conn, err := db.GetConnection()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return nil, nil, todoerrors.ErrParseError
+	}
+
+	var todo entity.Todo
+	c.BodyParser(&todo)
+
+	validationErrors := ValidateTodo(todo)
+	if len(validationErrors) > 0 {
+		return nil, validationErrors, nil
+	}
+
+	todo.CreatedTime = time.Now()
+
+	insertQuery, err := conn.Prepare(`UPDATE todos SET title = ?, task = ? , created_time = ? , author_name = ? WHERE id = ?;`)
+	if err != nil {
+		return nil, nil, globalerrors.ErrInternalServerError
+	}
+
+	res, err := insertQuery.Exec(
+		todo.Title,
+		todo.Task,
+		todo.CreatedTime.Format("2006-01-02 15:04:05"),
+		todo.AuthorName,
+		id,
+	)
+
+	if err != nil {
+		return nil, nil, globalerrors.ErrInternalServerError
+	}
+
+	rowsAff, err := res.RowsAffected()
+	if err != nil {
+		return nil, nil, globalerrors.ErrInternalServerError
+	}
+	if rowsAff < 1 {
+		return nil, nil, globalerrors.ErrInternalServerError
+	}
+	fmt.Println(id)
+
+	serializedTodo := entity.SerializedTodo{
+		Id:          id,
+		Title:       todo.Title,
+		Task:        todo.Task,
+		AuthorName:  todo.AuthorName,
+		CreatedTime: todo.CreatedTime.Format(entity.SerializedTodoTimeFormat),
+	}
+	return &serializedTodo, nil, nil
+}
+
+var validate = validator.New()
+
+func ValidateTodo(todo entity.Todo) []*types.ErrorResponse {
+	var errors []*types.ErrorResponse
+
+	err := validate.Struct(todo)
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			var element types.ErrorResponse
+			element.FailedField = err.Field()
+			element.Tag = err.Tag()
+			element.Value = err.Param()
+			errors = append(errors, &element)
+		}
+	}
+	return errors
 }

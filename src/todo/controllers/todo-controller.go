@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"net/http"
 	"time"
 
 	globalerrors "github.com/alexkalak/todos/src/errors"
@@ -19,6 +18,8 @@ func TodoController(router fiber.Router) {
 
 	router.Get("/:id<int>", getTodoById)
 	router.Delete("/:id<int>", deleteTodoById)
+	router.Put("/:id<int>", updateTodoHandler)
+
 }
 
 func getAllTodosHandler(c *fiber.Ctx) error {
@@ -29,10 +30,10 @@ func getAllTodosHandler(c *fiber.Ctx) error {
 func saveTodoHandler(c *fiber.Ctx) error {
 	todo, errors, err := todoService.SaveTodo(c)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(`"ok":"false", "msg":"internal server error"`)
+		return c.JSON(`"ok":"false", "msg":"internal server error"`)
 	}
 	if errors != nil {
-		return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"ok":     false,
 			"errors": errors,
 		})
@@ -43,7 +44,7 @@ func saveTodoHandler(c *fiber.Ctx) error {
 			"todo": todo,
 		})
 	}
-	return c.Status(http.StatusBadRequest).JSON(`"ok": false`)
+	return c.JSON(`"ok": false`)
 }
 
 func getTodoById(c *fiber.Ctx) error {
@@ -52,17 +53,17 @@ func getTodoById(c *fiber.Ctx) error {
 	if err != nil {
 		switch {
 		case errors.Is(err, globalerrors.ErrInternalServerError):
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			return c.JSON(fiber.Map{
 				"ok":  false,
 				"msg": "An internal server error",
 			})
 		case errors.Is(err, todoerrors.ErrUserNotFound):
-			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			return c.JSON(fiber.Map{
 				"ok":  false,
 				"msg": "User not found",
 			})
 		case errors.Is(err, todoerrors.ErrParseError):
-			return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+			return c.JSON(fiber.Map{
 				"ok":  false,
 				"msg": "User id error",
 			})
@@ -74,7 +75,7 @@ func getTodoById(c *fiber.Ctx) error {
 			"todo": todo,
 		})
 	}
-	return c.Status(http.StatusBadRequest).JSON(fiber.Map{
+	return c.JSON(fiber.Map{
 		"ok": false,
 	})
 }
@@ -99,4 +100,25 @@ func deleteTodoById(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"ok": true,
 	})
+}
+
+func updateTodoHandler(c *fiber.Ctx) error {
+	time.Sleep(time.Second)
+	todo, validationErrors, err := todoService.UpdateTodo(c)
+	if err != nil {
+		return c.JSON(`"ok":"false", "msg":"internal server error"`)
+	}
+	if validationErrors != nil {
+		return c.JSON(fiber.Map{
+			"ok":     false,
+			"errors": validationErrors,
+		})
+	}
+	if todo != nil {
+		return c.JSON(fiber.Map{
+			"ok":   true,
+			"todo": todo,
+		})
+	}
+	return c.JSON(`"ok": false`)
 }
