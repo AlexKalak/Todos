@@ -82,6 +82,7 @@
 .todoBlock {
     position: relative;
     width: 100%;
+    min-height: 60px;
     display: flex;
     flex-direction: column;
     padding: 8px;
@@ -95,9 +96,9 @@
     
 }
 
-// .todoBlock * {
-//     touch-action: none;
-// }
+.todoBlock * {
+    touch-action: none;
+}
 
 .todoHeader {
     width: 100%;

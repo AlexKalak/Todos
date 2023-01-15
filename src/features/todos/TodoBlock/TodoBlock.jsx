@@ -84,7 +84,7 @@ const TodoBlock = (props) => {
                     style={showedAction === "left" ? {zIndex: "2"} : {zIndex: "1"}} 
                     className={style.todoAction + " " + style.todoLeftAction}
                 >
-                    <span>Редактировать</span>
+                    <span>Просмотр</span>
                 </div>
 
                 <div

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
-import { createTodo, deleteTodo, getTodos } from "../../api/fetchTodos"
+import { createTodo, deleteTodo, getTodos, updateTodo } from "../../api/fetchTodos"
 
 const initialState = {
     todos: [],
@@ -9,12 +9,15 @@ const initialState = {
     rejectedDeleteTodos: [],
     statuses: {
         uploading: null,
-        creating: null 
+        creating: null,
+        updating: null
     }, 
     errors: {
         uploading: null,
         creatingError: null,
-        creatingValidationErrors: {}
+        creatingValidationErrors: {},
+        updatingError: null,
+        updatingValidationErrors: {}
     },
     editPopup: {
         opened: false,
@@ -24,7 +27,7 @@ const initialState = {
         opened: false,
     },
     createPopup: {
-        opened: true
+        opened: false
     }
 }
 
@@ -65,6 +68,22 @@ export const createTodoThunk = createAsyncThunk(
         let json = JSON.stringify(data)
         try{
             const response = await createTodo(json)
+            if(!response.ok) {
+                return rejectWithValue({validationErrors: response.validationErrors, err: response.err})
+            }
+            console.log("in thunk", response)
+            return {"ok": true, todo: response.todo}
+        } catch (e) {
+            return rejectWithValue({err: "some error occured"})
+        }
+    }
+)
+export const updateTodoThunk = createAsyncThunk(
+    'todos/updateTodo', 
+    async ({id, data}, {rejectWithValue}) => {
+        let json = JSON.stringify(data)
+        try{
+            const response = await updateTodo(id, json)
             if(!response.ok) {
                 return rejectWithValue({validationErrors: response.validationErrors, err: response.err})
             }
@@ -168,6 +187,43 @@ const todosSlice = createSlice({
                 }
                 state.statuses.creating = 'failed'
                 state.errors.creatingError = "some err occured"
+            })
+            .addCase(updateTodoThunk.pending, (state, action) => {
+                state.statuses.updating = 'loading'
+            })
+            .addCase(updateTodoThunk.fulfilled, (state, action) => {
+                state.statuses.updating = 'fulfilled'
+                const {todo} = action.payload
+                console.log("in add case", todo)
+                let id = todo.id
+                let updatedTodoIndex = state.todos.findIndex(todo => todo.id = id)
+                console.log(updatedTodoIndex)
+                if(updatedTodoIndex === -1)
+                    return
+                state.todos[updatedTodoIndex] = todo
+                console.log(state.todos)
+            })
+            .addCase(updateTodoThunk.rejected, (state, action) => {
+                const {validationErrors, err} = action.payload 
+                if(validationErrors) {
+                    for(let i in validationErrors) {
+                        let fieldName = validationErrors[i].FailedField
+                        state.errors.updatingValidationErrors[fieldName] = {
+                            tag: validationErrors[i].Tag,
+                            value: validationErrors[i].Value
+                        }
+                    }
+    
+                    state.statuses.updating = 'validation errors'
+                    return
+                }
+                if(err) {
+                    state.errors.updatingError = action.payload.err
+                    state.statuses.updating = 'failed'
+                    return
+                }
+                state.statuses.updating = 'failed'
+                state.errors.updatingError = "some err occured"
             })
     }
 })

@@ -1,0 +1,29 @@
+@import '../../scss/vendor/variables.scss';
+
+.block {
+    position: relative;
+    aspect-ratio: 3/1;
+    background: $color-white;
+    border-radius: 15%;
+    cursor: pointer;
+    transition: all .5s;
+
+    &.enabled {
+        background: $color-blue-light;
+    }
+}
+
+.circle {
+    height: 200%;
+    position: absolute;
+    top: -50%;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    background: $color-blue;
+    left: -35%;
+    transition: all .3s;
+    
+    &.enabled {
+        left: 60%;
+    }
+}

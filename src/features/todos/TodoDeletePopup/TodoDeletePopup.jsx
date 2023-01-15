@@ -6,19 +6,21 @@ import popupStyle from '../../../scss/custom/popup.module.scss'
 import buttonsStyle from '../../../scss/custom/buttons.module.scss'
 
 import { closeDeletePopup, selectDeletePopupData } from '../todosSlice'
+import { closePopupAreaClickHandler } from '../../../eventHandlers/popupCloseAreaClickHandler'
 
 const TodoDeletePopup = () => {
   const dispatch = useDispatch()
   const popupData = useSelector(selectDeletePopupData)
 
+  const closeClickHandler = closePopupAreaClickHandler(() => {
+      dispatch(closeDeletePopup({accepted: false}))
+    }
+  )
+
   return (
     <div 
       className={`${popupStyle.popup} ${popupData?.opened ? popupStyle.active : ""}`}
-      onClick={(e) => {
-        if(e.currentTarget !== e.target)
-          return
-        dispatch(closeDeletePopup({accepted: false}))
-      }}
+      onPointerDown={closeClickHandler}
     >
         <div className={`${popupStyle.content}  ${style.container}`}>
             <button 

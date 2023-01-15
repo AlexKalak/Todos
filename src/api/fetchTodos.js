@@ -59,3 +59,25 @@ export const createTodo = async (todoJSON) => {
         todo: response.data.todo
     }
 }
+
+export const updateTodo = async (id, todoJSON) => {
+    const endpoint = `${backendDomain}/todos/${id}`
+
+    let response = await axios.put(endpoint, todoJSON, {
+        headers: {
+            'Content-Type': 'application/json'}
+    })
+    console.log("in axios", response)
+    if(response.data.ok === false) {
+        return {
+            ok: false,
+            validationErrors: response.data.errors,
+            err: response.data.err
+        }
+    }
+
+    return {
+        ok: true,
+        todo: response.data.todo
+    }
+}

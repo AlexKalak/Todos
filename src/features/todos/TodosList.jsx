@@ -17,7 +17,6 @@ const TodosList = () => {
     const todosErros = useSelector((state) => state.todos.errors)
 
     const todosJSX = todos.map(todo => {
-        console.log(todo.id)
         return <TodoBlock 
                     todo={todo} 
                     isInDeletingProcess={processDeletingIds.includes(todo.id)} 

@@ -12,6 +12,7 @@ import popupStyle from '../../../scss/custom/popup.module.scss'
 import buttonsStyle from '../../../scss/custom/buttons.module.scss'
 import style from './todo-create-popup.module.scss'
 import warningsStyle from '../../../scss/custom/warnings.module.scss'
+import { closePopupAreaClickHandler } from '../../../eventHandlers/popupCloseAreaClickHandler'
 
 
 const TodoCreatePopup = () => {
@@ -19,16 +20,16 @@ const TodoCreatePopup = () => {
   const dispatch = useDispatch()
   const opened = useSelector(selectCreatePopupIsOpened)
   const status = useSelector((state) => state.todos.statuses.creating)
-  const error = useSelector((state) => state.todos.errors.error)
+  const error = useSelector((state) => state.todos.errors.creatingError)
   const validationErrors = useSelector((state) => state.todos.errors.creatingValidationErrors)
 
-  const [title, setTitle] = useState("s")
+  const [title, setTitle] = useState("")
   const [titleError, setTitleError] = useState("")
 
-  const [task, setTask] = useState("s")
+  const [task, setTask] = useState("")
   const [taskError, setTaskError] = useState("")
 
-  const [author, setAuthor] = useState("s")
+  const [author, setAuthor] = useState("")
   const [authorError, setAuthorError] = useState("")
 
   const changeHeight = (e) => {
@@ -115,15 +116,14 @@ const TodoCreatePopup = () => {
   }, [validationErrors])
 
   
+  const closeClickHandler = closePopupAreaClickHandler(() => {
+    dispatch(closeCreatePopup())
+  })
 
   return (
       <div 
         className={`${popupStyle.popup} ${opened ? popupStyle.active : ""}`}
-        onClick={(e) => {
-          if(e.currentTarget !== e.target)
-            return
-          dispatch(closeCreatePopup())
-        }}
+        onPointerDown={closeClickHandler}
       >
           <div className={`${popupStyle.content}`}>
               <div className={style.container}>
@@ -162,7 +162,7 @@ const TodoCreatePopup = () => {
 
                   <button 
                     className={`${buttonsStyle["button--primary"]} ${style.createButton}`}
-                    onClick={sendRequest}
+                    onClick={buttonClickHandler}
                   >Create</button>
                 </>}
 

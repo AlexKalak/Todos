@@ -18,11 +18,16 @@
     .content {
         position: relative;
         background-color: $color-bg;
+        padding: 10px;
         border-radius: 15px;
+
         max-height: 90vh;
+        min-height: 50px;
+        overflow: auto;
+
         width: 90vw;
         max-width: 600px;
-        min-height: 50px;
+        
         transform: scale(0);
         transition: transform .3s;
         box-shadow: 14px 19px 42px -10px rgb(0 0 0 / 75%);

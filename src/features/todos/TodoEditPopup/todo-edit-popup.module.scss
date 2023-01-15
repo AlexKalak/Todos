@@ -1,11 +1,20 @@
 @import "../../../scss/vendor/variables.scss";
 @import "../../../scss/global/mixins.scss";
 
+
 .container {
     padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.editingSwitchBlock {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: start;
+    gap: 15px;
 }
 
 .textareaBlock {
@@ -14,6 +23,8 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+    margin-bottom: 10px;
+    padding: 5px;
 }
 
 .textarea {
@@ -27,6 +38,14 @@
     box-shadow: none;
     background: #ddd;
     font-family: Arial, Helvetica, sans-serif;
-    margin: 0 auto 10px;
-    @include text-responsive()
+    margin: 0 auto;
+    @include text-responsive(0.9rem,0.8rem,0.8rem,0.0.75rem)
+}
+
+.saveButton {
+    padding: 5px 20px;
+}
+
+.error {
+    @include text-responsive(0.9rem,0.8rem,0.8rem,0.0.75rem)
 }
