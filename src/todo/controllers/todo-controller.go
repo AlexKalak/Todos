@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"errors"
-	"time"
 
 	globalerrors "github.com/alexkalak/todos/src/errors"
 	todoerrors "github.com/alexkalak/todos/src/todo/errors"
@@ -81,8 +80,9 @@ func getTodoById(c *fiber.Ctx) error {
 }
 
 func deleteTodoById(c *fiber.Ctx) error {
-	time.Sleep(time.Second * 5)
+	// time.Sleep(time.Second * 5)
 	value, err := todoService.DeleteTodoById(c)
+
 	if err != nil {
 		return c.JSON(fiber.Map{
 			"ok":  false,
@@ -103,7 +103,7 @@ func deleteTodoById(c *fiber.Ctx) error {
 }
 
 func updateTodoHandler(c *fiber.Ctx) error {
-	time.Sleep(time.Second)
+	// time.Sleep(time.Second)
 	todo, validationErrors, err := todoService.UpdateTodo(c)
 	if err != nil {
 		return c.JSON(`"ok":"false", "msg":"internal server error"`)

@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/alexkalak/todos/db"
+	"github.com/alexkalak/todos/src/authorization/validation"
 	globalerrors "github.com/alexkalak/todos/src/errors"
 	"github.com/alexkalak/todos/src/todo/entity"
 	todoerrors "github.com/alexkalak/todos/src/todo/errors"
 	"github.com/alexkalak/todos/src/types"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -68,7 +68,7 @@ func (t *todoService) SaveTodo(c *fiber.Ctx) (*entity.SerializedTodo, []*types.E
 	var todo entity.Todo
 	c.BodyParser(&todo)
 
-	errors := ValidateTodo(todo)
+	errors := validation.Validate(todo)
 	if len(errors) > 0 {
 		return nil, errors, nil
 	}
@@ -191,7 +191,7 @@ func (t *todoService) UpdateTodo(c *fiber.Ctx) (*entity.SerializedTodo, []*types
 	var todo entity.Todo
 	c.BodyParser(&todo)
 
-	validationErrors := ValidateTodo(todo)
+	validationErrors := validation.Validate(todo)
 	if len(validationErrors) > 0 {
 		return nil, validationErrors, nil
 	}
@@ -232,22 +232,4 @@ func (t *todoService) UpdateTodo(c *fiber.Ctx) (*entity.SerializedTodo, []*types
 		CreatedTime: todo.CreatedTime.Format(entity.SerializedTodoTimeFormat),
 	}
 	return &serializedTodo, nil, nil
-}
-
-var validate = validator.New()
-
-func ValidateTodo(todo entity.Todo) []*types.ErrorResponse {
-	var errors []*types.ErrorResponse
-
-	err := validate.Struct(todo)
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			var element types.ErrorResponse
-			element.FailedField = err.Field()
-			element.Tag = err.Tag()
-			element.Value = err.Param()
-			errors = append(errors, &element)
-		}
-	}
-	return errors
 }
