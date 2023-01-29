@@ -1,24 +1,19 @@
 import logo from './logo.svg';
 import './App.css';
-import TodosList from './features/todos/TodosList';
-import TodoEditPopup from './features/todos/TodoEditPopup/TodoEditPopup';
-import Loading from './components/Loading/Loading';
-import Test from './features/todos/Test';
-import TodoDeletePopup from './features/todos/TodoDeletePopup/TodoDeletePopup';
-import TodoCreatePopup from './features/todos/TodoCreatePopup/TodoCreatePopup';
-import Switch from './components/Switch/Switch';
 import { useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import TodoPage from './features/todos/TodoPage';
 
 function App() {
   const [enb, setEnb] = useState(false)
   return (
     <div className="App">
-      <main>
-        <TodosList />
-      </main>
-      <TodoEditPopup />
-      <TodoDeletePopup />
-      <TodoCreatePopup />
+      
+      <Routes>
+        <Route path="/todos" element={<TodoPage />}>
+          
+        </Route>
+      </Routes>
     </div>
   );
 }

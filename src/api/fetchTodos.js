@@ -5,9 +5,20 @@ const backendDomain = "http://192.168.100.108:9999"
 export const getTodos = async () => {
     const endpoint = `${backendDomain}/todos`
 
-    let response = await axios.get(endpoint)
-    console.log(response)
-    if(response.statusText !== "OK") {
+    let errorOccured = false
+    let response = await axios
+        .get(endpoint)
+        .catch(e => {
+            errorOccured = true
+            let response = e.response
+            if (response.status === 401) {
+                
+            }
+        })
+
+    
+
+    if(response.statusText !== "OK" || errorOccured ) {
         return {
             ok: false,
             msg: "some error occured"
