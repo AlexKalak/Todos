@@ -18,22 +18,39 @@ func New(config fiber.Config) fiber.Handler {
 		authToken, err := jwtHelper.ParseToken(authTokenString)
 		if err != nil {
 			c.ClearCookie("Auth", "Refresh")
-			return c.Redirect("/auth/authorization")
+			c.SendStatus(http.StatusUnauthorized)
+			return c.JSON(fiber.Map{
+				"ok":  false,
+				"msg": "invalid token",
+			})
 		}
 
 		if !authToken.Valid {
 			refreshToken, err := jwtHelper.ParseToken(refreshTokenString)
 			if err != nil {
 				c.ClearCookie("Auth", "Refresh")
-				return c.Redirect("/auth/authorization")
+				c.SendStatus(http.StatusUnauthorized)
+				return c.JSON(fiber.Map{
+					"ok":  false,
+					"msg": "invalid token",
+				})
 			}
 
 			if !refreshToken.Valid {
 				c.ClearCookie("Auth", "Refresh")
-				return c.Redirect("/auth/authorization")
+				c.SendStatus(http.StatusUnauthorized)
+				return c.JSON(fiber.Map{
+					"ok":  false,
+					"msg": "invalid token",
+				})
 			}
+
 			c.ClearCookie("Auth", "Refresh")
-			return c.Redirect("/auth/refresh")
+			c.SendStatus(http.StatusUnauthorized)
+			return c.JSON(fiber.Map{
+				"ok":  false,
+				"msg": "expired token",
+			})
 		}
 
 		map_tokenClaims, ok := authToken.Claims.(jwt.MapClaims)

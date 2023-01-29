@@ -14,7 +14,9 @@ var authService = services.New()
 
 func AuthController(router fiber.Router) {
 	router.Post("/registration", registrationHandler)
-	// router.Get("")
+	router.Get("/authorization", func(c *fiber.Ctx) error {
+		return c.SendString("123")
+	})
 }
 
 func registrationHandler(c *fiber.Ctx) error {
@@ -60,5 +62,5 @@ func registrationHandler(c *fiber.Ctx) error {
 	c.Cookie(&AuthCookie)
 	c.Cookie(&RefreshCookie)
 
-	return c.Redirect("/auth")
+	return c.Redirect("/")
 }

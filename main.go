@@ -34,12 +34,6 @@ func main() {
 
 	app.Use(cors.New())
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Render("html/index.html", fiber.Map{
-			"hello": "world",
-		})
-	})
-
 	setupRoutes(app)
 
 	app.Listen(":9999")

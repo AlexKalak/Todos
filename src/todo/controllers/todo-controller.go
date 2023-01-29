@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 
 	globalerrors "github.com/alexkalak/todos/src/errors"
 	todoerrors "github.com/alexkalak/todos/src/todo/errors"
@@ -23,7 +24,11 @@ func TodoController(router fiber.Router) {
 
 func getAllTodosHandler(c *fiber.Ctx) error {
 	todos := todoService.GetAllTodos()
-	return c.JSON(&todos)
+	fmt.Println(todos)
+	return c.JSON(fiber.Map{
+		"ok":    true,
+		"todos": &todos,
+	})
 }
 
 func saveTodoHandler(c *fiber.Ctx) error {
