@@ -34,7 +34,7 @@ func (a *authService) RegistrateUser(c *fiber.Ctx) (*entities.SerializedUser, []
 
 	err = c.BodyParser(&user)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Some error occured")
+		return nil, nil, err
 	}
 
 	validationErrors := validation.Validate(&user)
@@ -43,6 +43,9 @@ func (a *authService) RegistrateUser(c *fiber.Ctx) (*entities.SerializedUser, []
 	}
 
 	userExists, err := UserExistsInDB(user.Email)
+	if err != nil {
+		return nil, nil, err
+	}
 	if userExists {
 		return nil, nil, errors.ErrUserAlreadyExists
 	}

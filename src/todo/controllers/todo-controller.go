@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	globalerrors "github.com/alexkalak/todos/src/errors"
+	"github.com/alexkalak/todos/src/middleware/authorization"
 	todoerrors "github.com/alexkalak/todos/src/todo/errors"
 	"github.com/alexkalak/todos/src/todo/services"
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +14,8 @@ import (
 var todoService = services.New()
 
 func TodoController(router fiber.Router) {
+	router.Use(authorization.New(fiber.Config{}))
+
 	router.Get("/", getAllTodosHandler)
 	router.Post("/", saveTodoHandler)
 
