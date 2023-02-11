@@ -4,8 +4,4 @@
 .error {
     color: $color-red-light;
     @include fontFamilyDidactGothic;
-
-    &::before {
-        content: "*"
-    }
 }

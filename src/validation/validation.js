@@ -1,4 +1,6 @@
-export const LengthValidation = (value, min, max) => {
+const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+
+export const LengthValidator = (value, min, max) => {
     if(!value)
         return "this field is required"
     if(value.length < min) {
@@ -17,4 +19,9 @@ export const NotEmptyValidator = (value) => {
         return `this field is required` 
     }
     return null
+}
+
+export const EmailValidator = (value) => {
+    let valid = emailRegex.test(value)
+    if (!valid) return "this fiels should be email"
 }

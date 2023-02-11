@@ -11,15 +11,15 @@ import warningsStyle from '../../../scss/custom/warnings.module.scss'
 import buttonsStyle from '../../../scss/custom/buttons.module.scss'
 import { closePopupAreaClickHandler } from '../../../eventHandlers/popupCloseAreaClickHandler'
 import Switch from '../../../components/Switch/Switch'
-import { LengthValidation, NotEmptyValidator } from '../../../validation/validation'
+import { LengthValidator, NotEmptyValidator } from '../../../validation/validation'
 import Loading from '../../../components/Loading/Loading'
 
 const TodoEditPopup = () => {
   const dispatch = useDispatch()
   const popupData = useSelector(selectEditPopupData)
   const status = useSelector((state) => state.todos.statuses.updating)
-  const error = useSelector((state) => state.todos.errors.updatingError)
-  const validationErrors = useSelector((state) => state.todos.errors.updationValidationErrors)
+  // const error = useSelector((state) => state.todos.errors.updatingError)
+  // const validationErrors = useSelector((state) => state.todos.errors.updationValidationErrors)
 
   const titleTextareaRef = useRef()
   const taskTextareaRef = useRef()
@@ -43,7 +43,7 @@ const TodoEditPopup = () => {
 
   const validateTitle = (e) => {
     console.log("in validation")
-    let LengthValidationError = LengthValidation(state.title, 3, 45) 
+    let LengthValidationError = LengthValidator(state.title, 3, 45) 
     
     setState(prev => ({
       ...prev,
@@ -59,7 +59,7 @@ const TodoEditPopup = () => {
 
   const validateTask = (e) => {
     console.log("in validation")
-    let LengthValidationError = LengthValidation(state.task, 3, 1500) 
+    let LengthValidationError = LengthValidator(state.task, 3, 1500) 
     
     setState(prev => ({
       ...prev,

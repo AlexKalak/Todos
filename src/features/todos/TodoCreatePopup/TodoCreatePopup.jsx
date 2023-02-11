@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect } from 'react'
 
-import { LengthValidation, NotEmptyValidator } from '../../../validation/validation'
+import { LengthValidator, NotEmptyValidator } from '../../../validation/validation'
 
 import { clearCreatePopup, closeCreatePopup, createTodoThunk, selectCreatePopupIsOpened,  } from '../todosSlice'
 
@@ -51,7 +51,7 @@ const TodoCreatePopup = () => {
   }
 
   const validateTitle = (e) => {
-    let LengthValidationError = LengthValidation(title, 3, 45) 
+    let LengthValidationError = LengthValidator(title, 3, 45) 
     if(LengthValidationError != null) {
       return false
     }
@@ -59,7 +59,7 @@ const TodoCreatePopup = () => {
   }
 
   const validateTask = (e) => {
-    let LengthValidationError = LengthValidation(task, 3, 1500) 
+    let LengthValidationError = LengthValidator(task, 3, 1500) 
     if(LengthValidationError != null) {
       return false
     }
